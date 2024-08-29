@@ -36,21 +36,23 @@ def create_sample_mask(sample_img):
     lower_factor = 3.5 / 8
     upper_factor = 2.5 / 8
     [lx, ly] = [int(x * lower_factor), int(y * lower_factor)]
-    cv2.rectangle(sample_trained_mask, (lx, ly), (lx + int(x * upper_factor), ly + int(y * upper_factor)), (255, 255, 255), -1)
+    cv2.rectangle(sample_trained_mask, (lx, ly), (lx + int(x * upper_factor), ly + int(y * upper_factor)),
+                  (255, 255, 255), -1)
     cv2.imwrite("sample_trained_mask.png", sample_trained_mask)
 
     sample_annote_mask = np.zeros_like(sample_image)
     lower_factor = 3 / 8
     upper_factor = 2 / 8
     [lx, ly] = [int(x * lower_factor), int(y * lower_factor)]
-    cv2.rectangle(sample_annote_mask, (lx, ly), (lx + int(x * upper_factor), ly + int(y * upper_factor)), (255, 255, 255), -1)
+    cv2.rectangle(sample_annote_mask, (lx, ly), (lx + int(x * upper_factor), ly + int(y * upper_factor)),
+                  (255, 255, 255), -1)
     cv2.imwrite("sample_annote_mask.png", sample_annote_mask)
+
 
 # create_sample_mask(r"C:\Users\Alex Devlin\PycharmProjects\segmentation_comparison\Unlabelled Imgs\05_STIM003_1_35.0_Plac_1.jpeg")
 
 
 def calc_dice(im1, im2):
-
     # Normalize Images
     im1[im1 > 1] = 1
     im2[im2 > 1] = 1
@@ -76,7 +78,6 @@ def find_ga(image_title):
 # Checks the givens folders. Files from unlablled_folder are used for naming. Files of the same name are checked in
 # the other folders. A composite image showing overlap is saved in comparison folder along with DICE score
 def compare_masks(unlabelled_folder, annote_folder, trained_folder, comparison_folder):
-
     dice_values = []
     ga_values = []
     area_values = []
@@ -96,6 +97,8 @@ def compare_masks(unlabelled_folder, annote_folder, trained_folder, comparison_f
     # Excluded masks due to low quality, incorrect labelling, etc
     # excluded = ["106_T2_1_19.3_Liver_1_U_7.8cm"]
     try:
+        if "excluded" not in locals():  # If there are no excluded files, excluded will not be assigned until here
+            excluded = []
         for ex_file in excluded:
             trained_masks.remove(ex_file)
     except NameError:
@@ -106,7 +109,6 @@ def compare_masks(unlabelled_folder, annote_folder, trained_folder, comparison_f
         mkdir(comparison_folder)
 
     for i, file in enumerate(trained_masks):
-
         # unlabelled_img = cv2.imread(join(unlabelled_folder, file))
         unlabelled_img = cv2.imread(join(unlabelled_folder, unlabelled_imgs[i]))
         # trained_mask = cv2.imread(join(trained_folder, file))
@@ -165,13 +167,11 @@ def compare_masks(unlabelled_folder, annote_folder, trained_folder, comparison_f
     df.to_csv(join(comparison_folder, "Metrics.csv"))
 
 
-
-# Define folder locations of the masks and images being processed
-root = r"C:\Users\Alex Devlin\Desktop\STIM Data\Chinook Sync\Sonogram Shenanigan Squad\placenta"
+# Define folder locations of the masks and images being processed.
+root = r"C:\Users\Alex Devlin\Desktop\STIM Data\Chinook Sync\Sonogram Shenanigan Squad\liver"
 unlabelled_folder = join(root, "images")
 annote_folder = join(root, "annotations")
-trained_folder = join(root, "ensemble_placenta")
-comparison_folder = join(root, "Masks Comparison")
+trained_folder = join(root, "Detectron2 liver prediction masks - 15k")
+comparison_folder = join(root, "Detectron2 liver prediction masks - 15k Masks Comparison")
 
 compare_masks(unlabelled_folder, annote_folder, trained_folder, comparison_folder)
-
